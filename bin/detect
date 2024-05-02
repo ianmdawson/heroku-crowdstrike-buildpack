@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if pgrep -f falcon-sensor > /dev/null
+then
+  echo "CrowdStrike"
+  exit 0
+else
+  exit 1
+fi
