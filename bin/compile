@@ -3,6 +3,7 @@
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
+TMP_DIR=$(mktemp -d)
 
 # Variables
 access_key="$(cat $ENV_DIR/CROWDSTRIKE_AWS_ACCESS_KEY)"
@@ -13,24 +14,25 @@ customer_id="$(cat $ENV_DIR/CROWDSTRIKE_CUSTOMER_ID)"
 apt-get update
 apt-get install curl unzip libnl-3-200 libnl-genl-3-200 -y
 
-# Check if AWS CLI is installed as the package is big
-if ! command -v aws &> /dev/null
-then
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-    unzip awscliv2.zip
-    ./aws/install
-fi
+# Install AWS CLI
+curl --silent --show-error --fail -o "${TMP_DIR}/awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+unzip -qq -d "${TMP_DIR}" "${TMP_DIR}/awscliv2.zip"
+mkdir -p "${BUILD_DIR}/.awscli"
+"${TMP_DIR}/aws/install" --install-dir "${TMP_DIR}/aws-cli" --bin-dir "${TMP_DIR}/bin"
+"${TMP_DIR}/bin/aws" --version
 
 # Configure AWS CLI
-aws configure set aws_access_key_id "$access_key"
-aws configure set aws_secret_access_key "$secret_key"
-aws configure set default.region eu-north-1
+"${TMP_DIR}/bin/aws" configure set aws_access_key_id "$access_key"
+"${TMP_DIR}/bin/aws" configure set aws_secret_access_key "$secret_key"
+"${TMP_DIR}/bin/aws" configure set default.region eu-north-1
 
 # Download the file from S3
-aws s3 cp "$install_path" .
-file_name=$(basename "$install_path")
+"${TMP_DIR}/bin/aws" s3 cp "$install_path" "${TMP_DIR}/"
+file_name="$TMP_DIR"/$(basename "$install_path")
 
 # Install CrowdStrike
 dpkg -i $file_name
-suod /opt/CrowdStrike/falconctl -s --cid="$customer_id"
+/opt/CrowdStrike/falconctl -s --cid="$customer_id"
 service falcon-sensor start
+
+rm -rf "${TMP_DIR}"
