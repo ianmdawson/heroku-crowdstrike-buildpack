@@ -10,15 +10,15 @@ secret_key="$(cat $ENV_DIR/CROWDSTRIKE_AWS_SECRET_KEY)"
 install_path="$(cat $ENV_DIR/CROWDSTRIKE_INSTALLER_S3_PATH)"
 customer_id="$(cat $ENV_DIR/CROWDSTRIKE_CUSTOMER_ID)"
 
-sudo apt-get update
-sudo apt-get install curl unzip libnl-3-200 libnl-genl-3-200 -y
+apt-get update
+apt-get install curl unzip libnl-3-200 libnl-genl-3-200 -y
 
 # Check if AWS CLI is installed as the package is big
 if ! command -v aws &> /dev/null
 then
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
     unzip awscliv2.zip
-    sudo ./aws/install
+    ./aws/install
 fi
 
 # Configure AWS CLI
@@ -31,6 +31,6 @@ aws s3 cp "$install_path" .
 file_name=$(basename "$install_path")
 
 # Install CrowdStrike
-sudo dpkg -i $file_name
+dpkg -i $file_name
 suod /opt/CrowdStrike/falconctl -s --cid="$customer_id"
 service falcon-sensor start
