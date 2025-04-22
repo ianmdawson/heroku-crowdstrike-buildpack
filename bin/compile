@@ -27,7 +27,7 @@ mkdir -p "${BUILD_DIR}/.awscli"
 "${TMP_DIR}/bin/aws" configure set default.region us-east-1
 
 # Download the file from S3
-"${TMP_DIR}/bin/aws" s3 cp "$install_path" "${TMP_DIR}/"
+"${TMP_DIR}/bin/aws" s3 cp "s3://$install_path" "${TMP_DIR}/"
 file_name="$TMP_DIR"/$(basename "$install_path")
 
 # Install CrowdStrike
