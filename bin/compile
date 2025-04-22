@@ -24,7 +24,7 @@ mkdir -p "${BUILD_DIR}/.awscli"
 # Configure AWS CLI
 "${TMP_DIR}/bin/aws" configure set aws_access_key_id "$access_key"
 "${TMP_DIR}/bin/aws" configure set aws_secret_access_key "$secret_key"
-"${TMP_DIR}/bin/aws" configure set default.region eu-north-1
+"${TMP_DIR}/bin/aws" configure set default.region us-east-1
 
 # Download the file from S3
 "${TMP_DIR}/bin/aws" s3 cp "$install_path" "${TMP_DIR}/"
